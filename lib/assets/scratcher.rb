@@ -1,6 +1,7 @@
 require 'net/http'
 require 'uri'
 require 'json'
+require 'nokogiri'
 
 class Scratcher
   HEADERS = {
@@ -27,5 +28,76 @@ class Scratcher
 
     response = http.request(request)
     JSON.parse(response.body)['ids']
+  end
+
+  def startups_by_ids(ids)
+    uri = URI.parse('https://angel.co/job_listings/browse_startups_table')
+    request = Net::HTTP::Get.new(uri.path)
+    request.initialize_http_header(HEADERS)
+    request.set_form_data(promotion_event_id: nil,
+                          tab: 'find',
+                          page: 1,
+                          'startup_ids[]' => ids)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    response = http.request(request)
+    response.body
+  end
+
+  def startups_from_html(html)
+    doc = Nokogiri::HTML(html)
+    doc.css('.browse_startups_table_row').map do |element|
+      startup_from(element)
+    end
+  end
+
+  protected
+
+  def startup_from(element)
+    {
+      id: element['data-id'].to_i,
+      title: element.at_css('.header-info .startup-link')&.text&.strip,
+      url: element.at_css('.header-info .startup-link')['href'],
+      description: element.at_css('.header-info .tagline')&.text&.strip,
+      status: element.at_css('.tag.active')&.text&.strip,
+      applicants: element.at_css('.tag.applicants strong')&.text&.strip,
+      location: element.at_css('.tag.locations')&.text&.strip,
+      employees: element.at_css('.tag.employees')&.text&.strip,
+      product: element.at_css('.product .description')&.text&.strip,
+      why_us: element.at_css('.why_us .content')&.inner_html&.strip,
+      links: links_from(element),
+      jobs: jobs_from(element),
+      founders: founders_from(element),
+    }
+  end
+
+  def links_from(element)
+    element.css('.link a').map { |link| link['href'] }
+  end
+
+  def jobs_from(element)
+    element.css('.jobs .listing-row').map do |job|
+      link = job.at_css('.top .title a')
+      {
+        url: link['href'],
+        text: link&.text&.strip,
+        tags: job.at_css('.tags')&.text&.strip&.split(' · '),
+        compensation: job.at_css('.compensation')&.text&.strip,
+      }
+    end
+  end
+
+  def founders_from(element)
+    element.css('.team .person').map do |person|
+      {
+        id: person.at_css('.profile-link')['data-id'].to_i,
+        picture: person.at_css('.founder-pic img')['src'],
+        name: person.at_css('.info .name a')&.text&.strip,
+        title: person.at_css('.info .name .title')&.text&.split("\n").first,
+        profile: person.at_css('.info .name a')['href'],
+        bio: person.at_css('.info .bio').inner_html(),
+      }
+    end
   end
 end
