@@ -45,11 +45,10 @@ ActiveRecord::Schema.define(version: 20170412062921) do
 
   create_table "links", force: :cascade do |t|
     t.string "url"
-    t.string "object_type"
-    t.bigint "object_id"
+    t.bigint "startup_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["object_type", "object_id"], name: "index_links_on_object_type_and_object_id"
+    t.index ["startup_id"], name: "index_links_on_startup_id"
   end
 
   create_table "startups", force: :cascade do |t|
@@ -75,4 +74,5 @@ ActiveRecord::Schema.define(version: 20170412062921) do
 
   add_foreign_key "founders", "startups"
   add_foreign_key "jobs", "startups"
+  add_foreign_key "links", "startups"
 end

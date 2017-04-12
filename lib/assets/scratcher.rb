@@ -52,6 +52,13 @@ class Scratcher
     end
   end
 
+  def batch_update(startups)
+    startups.each do |startup_params|
+      startup = Startup.find_or_initialize_by id: startup_params[:id]
+      startup.update! startup_params
+    end
+  end
+
   protected
 
   def startup_from(element)
@@ -66,9 +73,10 @@ class Scratcher
       employees: element.at_css('.tag.employees')&.text&.strip,
       product: element.at_css('.product .description')&.text&.strip,
       why_us: element.at_css('.why_us .content')&.inner_html&.strip,
-      links: links_from(element),
+      urls: links_from(element),
       jobs: jobs_from(element),
-      founders: founders_from(element),
+      founders_attributes: founders_from(element),
+      parsed_at: Time.current
     }
   end
 
@@ -82,7 +90,7 @@ class Scratcher
       {
         url: link['href'],
         text: link&.text&.strip,
-        tags: job.at_css('.tags')&.text&.strip&.split(' · '),
+        tags_list: job.at_css('.tags')&.text&.strip&.split(' · '),
         compensation: job.at_css('.compensation')&.text&.strip,
       }
     end

@@ -17,4 +17,11 @@
 
 class Job < ApplicationRecord
   belongs_to :startup
+  has_and_belongs_to_many :tags
+
+  def tags_list=(arr)
+    self.tags = arr.map do |tag|
+      Tag.first_or_initialize(name: tag)
+    end
+  end
 end

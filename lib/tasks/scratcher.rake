@@ -17,6 +17,7 @@ namespace :scratcher do
     # html = scratcher.startups_by_ids(["3975161", "3975152"])
     # File.open(filename, 'wb') { |file| file.write(html) }
     html = File.read(filename)
-    puts scratcher.startups_from_html(html)
+    startups = scratcher.startups_from_html(html)
+    scratcher.batch_update(startups)
   end
 end
