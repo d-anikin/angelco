@@ -62,7 +62,7 @@ namespace :scratcher do
     threads = []
     busy_ids = []
 
-    1.times do |index|
+    10.times do |index|
       threads << Thread.new(index) do |index|
         puts "Thread #{index}: Starting"
         scratcher = Scratcher.new
