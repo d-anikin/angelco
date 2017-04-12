@@ -18,4 +18,9 @@
 #
 
 class Startup < ApplicationRecord
+  def self.add(arr)
+    records = (arr - ids).map { |id| { id: id } }
+    create(records) if records.any?
+    records.count
+  end
 end
