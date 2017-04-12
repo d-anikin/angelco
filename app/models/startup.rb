@@ -45,7 +45,7 @@ class Startup < ApplicationRecord
 
   def founders_attributes=(arr)
     arr.each do |attributes|
-      founders.first_or_initialize(id: attributes[:id])
+      founders.first_or_initialize(name: attributes[:name])
               .assign_attributes(attributes)
     end
   end

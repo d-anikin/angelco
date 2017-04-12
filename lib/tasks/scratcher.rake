@@ -5,19 +5,50 @@ namespace :scratcher do
 
     scratcher = Scratcher.new
 
-    # print 'Getting startup ids'
-    # ids = scratcher.ids
-    # puts " - received (#{ids.count})"
-    # print 'Adding to database'
-    # count = Startup.add(ids)
-    # puts " - added (#{count})"
+    print 'Getting startup ids'
+    ids = scratcher.ids
+    puts " - received (#{ids.count})"
+    print 'Adding to database'
+    count = Startup.add(ids)
+    puts " - added (#{count})"
 
-    # ---------
-    filename = "#{Rails.root}/tmp/startups.html"
-    # html = scratcher.startups_by_ids(["3975161", "3975152"])
-    # File.open(filename, 'wb') { |file| file.write(html) }
-    html = File.read(filename)
-    startups = scratcher.startups_from_html(html)
-    scratcher.batch_update(startups)
+    lock = Mutex.new
+    threads = []
+    busy_ids = []
+
+    10.times do |index|
+      threads << Thread.new(index) do |index|
+        puts "Thread #{index}: Starting"
+        scratcher = Scratcher.new
+        loop do
+          begin
+            ids = []
+            lock.synchronize do
+              startups = Startup.where(parsed_at: nil)
+                                .where.not(id: busy_ids)
+              count = startups.count
+              ids = startups.limit(10).ids
+              busy_ids += ids
+              puts "Thread #{index}: #{count} - Taken [#{ids.join(', ')}]"
+            end
+            break if ids.empty?
+            startups = scratcher.startups_by_ids(ids)
+            scratcher.batch_update(startups)
+          rescue Exception => e
+            Thread.current[:exception] = e
+          ensure
+            ActiveRecord::Base.connection_pool.release_connection
+          end
+        end
+        puts "Thread #{index}: Done"
+      end
+    end
+
+    threads.each do |thread|
+      thread.join
+      if thread[:exception]
+        puts "Error: #{ thread[:exception].message }"
+      end
+    end
   end
 end

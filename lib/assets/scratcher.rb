@@ -42,7 +42,7 @@ class Scratcher
     http.use_ssl = true
 
     response = http.request(request)
-    response.body
+    startups_from_html(response.body)
   end
 
   def startups_from_html(html)
@@ -99,7 +99,7 @@ class Scratcher
   def founders_from(element)
     element.css('.team .person').map do |person|
       {
-        id: person.at_css('.profile-link')['data-id'].to_i,
+        # id: person.at_css('.profile-link')['data-id'].to_i,
         picture: person.at_css('.founder-pic img')['src'],
         name: person.at_css('.info .name a')&.text&.strip,
         title: person.at_css('.info .name .title')&.text&.split("\n").first,
