@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170412062921) do
+ActiveRecord::Schema.define(version: 20170412131926) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "founder_links", force: :cascade do |t|
+    t.bigint "founder_id"
+    t.string "kind"
+    t.string "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["founder_id"], name: "index_founder_links_on_founder_id"
+  end
 
   create_table "founders", force: :cascade do |t|
     t.bigint "startup_id"
@@ -72,6 +81,7 @@ ActiveRecord::Schema.define(version: 20170412062921) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "founder_links", "founders"
   add_foreign_key "founders", "startups"
   add_foreign_key "jobs", "startups"
   add_foreign_key "links", "startups"

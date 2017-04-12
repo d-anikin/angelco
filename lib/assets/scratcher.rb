@@ -59,7 +59,30 @@ class Scratcher
     end
   end
 
+  def founder_profile(url)
+    uri = URI.parse(url)
+    request = Net::HTTP::Get.new(uri.path)
+    request.initialize_http_header(HEADERS)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    response = http.request(request)
+
+    doc = Nokogiri::HTML(response.body)
+    founder_profile_from(doc)
+  end
+
   protected
+
+  def founder_profile_from(element)
+    {
+      links_attributes: element.css('.link a').map do |link|
+                          { kind: link['data-field'],
+                            url: link['href'] }
+                        end
+    }
+  end
 
   def startup_from(element)
     {

@@ -20,4 +20,14 @@
 
 class Founder < ApplicationRecord
   belongs_to :startup
+  has_many :links, class_name: 'FounderLink'
+
+  accepts_nested_attributes_for :links
+
+  def links_attributes=(arr)
+    arr.each do |attributes|
+      links.first_or_initialize(url: attributes[:url])
+           .assign_attributes(attributes)
+    end
+  end
 end
