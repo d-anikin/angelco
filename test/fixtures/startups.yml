@@ -1,0 +1,44 @@
+# == Schema Information
+#
+# Table name: startups
+#
+#  id          :integer          not null, primary key
+#  title       :text
+#  url         :string
+#  description :text
+#  status      :string
+#  applicants  :string
+#  location    :string
+#  employees   :string
+#  product     :text
+#  why_us      :text
+#  parsed_at   :datetime
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyText
+  url: MyString
+  description: MyText
+  status: MyString
+  applicants: MyString
+  location: MyString
+  employees: MyString
+  product: MyText
+  why_us: MyText
+  parsed_at: 2017-04-12 09:21:13
+
+two:
+  title: MyText
+  url: MyString
+  description: MyText
+  status: MyString
+  applicants: MyString
+  location: MyString
+  employees: MyString
+  product: MyText
+  why_us: MyText
+  parsed_at: 2017-04-12 09:21:13
