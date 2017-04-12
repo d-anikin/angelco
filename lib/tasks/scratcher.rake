@@ -1,6 +1,6 @@
 namespace :scratcher do
-  desc 'Start scratching angel.co'
-  task start: :environment do
+  desc 'Start scratching startups from angel.co'
+  task startups: :environment do
     require "#{Rails.root}/lib/assets/scratcher.rb"
 
     scratcher = Scratcher.new
@@ -34,6 +34,52 @@ namespace :scratcher do
             break if ids.empty?
             startups = scratcher.startups_by_ids(ids)
             scratcher.batch_update(startups)
+          rescue Exception => e
+            Thread.current[:exception] = e
+          ensure
+            ActiveRecord::Base.connection_pool.release_connection
+          end
+        end
+        puts "Thread #{index}: Done"
+      end
+    end
+
+    threads.each do |thread|
+      thread.join
+      if thread[:exception]
+        puts "Error: #{ thread[:exception].message }"
+      end
+    end
+  end
+
+  desc 'Start scratching profiles from angel.co'
+  task profiles: :environment do
+    require "#{Rails.root}/lib/assets/scratcher.rb"
+
+    scratcher = Scratcher.new
+
+    lock = Mutex.new
+    threads = []
+    busy_ids = []
+
+    1.times do |index|
+      threads << Thread.new(index) do |index|
+        puts "Thread #{index}: Starting"
+        scratcher = Scratcher.new
+        loop do
+          begin
+            ids = []
+            profiles = {}
+            lock.synchronize do
+              founders = Founder.where(parsed_at: nil)
+                                .where.not(id: busy_ids)
+              count = founders.count
+              profiles = founders.limit(10).pluck(:id, :profile).to_h
+              busy_ids += profiles.keys
+              puts "Thread #{index}: #{count} - Taken [#{profiles.keys.join(', ')}]"
+            end
+            break if profiles.empty?
+            scratcher.update_profiles(profiles)
           rescue Exception => e
             Thread.current[:exception] = e
           ensure

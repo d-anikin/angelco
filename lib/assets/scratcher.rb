@@ -59,7 +59,7 @@ class Scratcher
     end
   end
 
-  def founder_profile(url)
+  def profile(url)
     uri = URI.parse(url)
     request = Net::HTTP::Get.new(uri.path)
     request.initialize_http_header(HEADERS)
@@ -70,13 +70,30 @@ class Scratcher
     response = http.request(request)
 
     doc = Nokogiri::HTML(response.body)
-    founder_profile_from(doc)
+    profile_from(doc)
+  end
+
+  def update_profiles(profiles)
+    profiles.each do |id, url|
+      # puts "Id = #{id}, URL = #{url}"
+      founder = Founder.find_or_initialize_by id: id
+      founder_params = profile(url)
+      founder.update! founder_params
+    end
+  end
+
+  def batch_update_profiles(profiles)
+    startups.each do |startup_params|
+      startup = Startup.find_or_initialize_by id: startup_params[:id]
+      startup.update! startup_params
+    end
   end
 
   protected
 
-  def founder_profile_from(element)
+  def profile_from(element)
     {
+      parsed_at: Time.current,
       links_attributes: element.css('.link a').map do |link|
                           { kind: link['data-field'],
                             url: link['href'] }
