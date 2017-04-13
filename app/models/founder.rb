@@ -26,7 +26,7 @@ class Founder < ApplicationRecord
 
   def links_attributes=(arr)
     arr.each do |attributes|
-      links.first_or_initialize(url: attributes[:url])
+      links.find_or_initialize_by(url: attributes[:url])
            .assign_attributes(attributes)
     end
   end

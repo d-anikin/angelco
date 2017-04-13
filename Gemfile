@@ -29,6 +29,9 @@ gem 'jbuilder', '~> 2.5'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'nokogiri'
+gem 'awesome_print'
+gem 'activeadmin', github: 'activeadmin'
+gem 'inherited_resources'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

@@ -21,7 +21,7 @@ class Job < ApplicationRecord
 
   def tags_list=(arr)
     self.tags = arr.map do |tag|
-      Tag.first_or_initialize(name: tag)
+      Tag.find_or_initialize_by(name: tag)
     end
   end
 end

@@ -35,7 +35,9 @@ namespace :scratcher do
             startups = scratcher.startups_by_ids(ids)
             scratcher.batch_update(startups)
           rescue Exception => e
+            puts "Thread #{index} ERROR: #{ e.message }"
             Thread.current[:exception] = e
+            break
           ensure
             ActiveRecord::Base.connection_pool.release_connection
           end
@@ -46,9 +48,6 @@ namespace :scratcher do
 
     threads.each do |thread|
       thread.join
-      if thread[:exception]
-        puts "Error: #{ thread[:exception].message }"
-      end
     end
   end
 
@@ -81,7 +80,9 @@ namespace :scratcher do
             break if profiles.empty?
             scratcher.update_profiles(profiles)
           rescue Exception => e
+            puts "Thread #{index} ERROR: #{ e.message }"
             Thread.current[:exception] = e
+            break
           ensure
             ActiveRecord::Base.connection_pool.release_connection
           end
@@ -92,9 +93,6 @@ namespace :scratcher do
 
     threads.each do |thread|
       thread.join
-      if thread[:exception]
-        puts "Error: #{ thread[:exception].message }"
-      end
     end
   end
 end

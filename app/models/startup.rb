@@ -35,7 +35,7 @@ class Startup < ApplicationRecord
 
   def urls=(arr)
     arr.each do |url|
-      links.first_or_initialize(url: url)
+      links.find_or_initialize_by(url: url)
     end
   end
 
@@ -45,14 +45,14 @@ class Startup < ApplicationRecord
 
   def founders_attributes=(arr)
     arr.each do |attributes|
-      founders.first_or_initialize(name: attributes[:name])
+      founders.find_or_initialize_by(name: attributes[:name])
               .assign_attributes(attributes)
     end
   end
 
   def jobs=(arr)
     arr.each do |attributes|
-      jobs.first_or_initialize(url: attributes[:url])
+      jobs.find_or_initialize_by(url: attributes[:url])
           .assign_attributes(attributes)
     end
   end
