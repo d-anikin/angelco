@@ -1,10 +1,12 @@
 ActiveAdmin.setup do |config|
+  config.register_javascript 'https://www.google.com/jsapi'
+
   # == Site Title
   #
   # Set the title that is displayed on the main layout
   # for each of the active admin pages.
   #
-  config.site_title = "Angelco"
+  config.site_title = "Angelo"
 
   # Set the link url for the title. For example, to take
   # users to your main site. Defaults to no link.

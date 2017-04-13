@@ -139,10 +139,9 @@ class Scratcher
   def founders_from(element)
     element.css('.team .person').map do |person|
       {
-        # id: person.at_css('.profile-link')['data-id'].to_i,
         picture: person.at_css('.founder-pic img')['src'],
         name: person.at_css('.info .name a')&.text&.strip,
-        title: person.at_css('.info .name .title')&.text&.split("\n").first,
+        title: person.at_css('.info .name .title')&.text&.strip&.split("\n").first,
         profile: person.at_css('.info .name a')['href'],
         bio: person.at_css('.info .bio').inner_html(),
       }
